@@ -173,17 +173,29 @@ body {
   gap: 2rem;                 
 }
 
-.logo-box {
-  height: 70px;              
-  width: 120px;              
-  display: flex;
-  align-items: center;      
-  justify-content: center;  
+/* Row layout: center the logos */
+.logos-row {
+  justify-content: center;
+  align-items: center;
 }
 
+/* Fixed box so each logo aligns */
+.logo-box {
+  height: 80px;          /* box height */
+  width: 140px;          /* box width: prevents huge logo overflow */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;      /* key: prevents big PNG bleeding out */
+}
+
+/* Force image to fit inside the box */
 .logo-img {
-  max-height: 60px;        
+  max-height: 60px;
+  max-width: 100%;       /* key: keep within box width */
   width: auto;
+  height: auto;
   display: block;
+  object-fit: contain;   /* keep aspect ratio */
 }
 

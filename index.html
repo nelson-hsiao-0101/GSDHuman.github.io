@@ -6,7 +6,7 @@
         content="Gaussian Surfels for Dynamic Human Reconstruction from Monocular Video">
   <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GSDHuman: Gaussian Surfels for Dynamic Human Reconstruction from Monocular Video</title>
+  <title>Photorealistic Human Avatar Generation and Real-Time Pose Editing with Gaussian Splatting</title>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
@@ -174,31 +174,21 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            We present the first method capable of photorealistically reconstructing a non-rigidly
-            deforming scene using photos/videos captured casually from mobile phones.
+            This thesis introduces a two-part framework for photorealistic human avatar reconstruction 
+            and real-time pose editing from monocular video.
           </p>
           <p>
-            Our approach augments neural radiance fields
-            (NeRF) by optimizing an
-            additional continuous volumetric deformation field that warps each observed point into a
-            canonical 5D NeRF.
-            We observe that these NeRF-like deformation fields are prone to local minima, and
-            propose a coarse-to-fine optimization method for coordinate-based models that allows for
-            more robust optimization.
-            By adapting principles from geometry processing and physical simulation to NeRF-like
-            models, we propose an elastic regularization of the deformation field that further
-            improves robustness.
+            The first module, <span class="dnerf">GSDHuman</span>, employs Gaussian Surfels to reconstruct Dynamic Human avatars within 
+            minutes, offering efficient human avatar reconstruction from single-view inputs. The second, 
+            <span class="dnerf">3DFilmPCA</span>, is a photorealistic avatar system based on rigged 3D Gaussian Splatting, enabling 
+            SMPL-driven Pre-Composite Action control. Users can interactively manipulate SMPL joints and 
+            instantly visualize updates on the associated Gaussian representation.
           </p>
           <p>
-            We show that <span class="dnerf">Nerfies</span> can turn casually captured selfie
-            photos/videos into deformable NeRF
-            models that allow for photorealistic renderings of the subject from arbitrary
-            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
-            using a
-            rig with two mobile phones that take time-synchronized photos, yielding train/validation
-            images of the same pose at different viewpoints. We show that our method faithfully
-            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
-            fidelity.
+            Together, these components form a complete pipeline that accelerates the creation of control- lable, high-fidelity human models. 
+            The proposed methods are tailored for artist-driven workflows in visual effects, digital filmmaking, 
+            and virtual human editing. Unlike conventional techniques that rely on complex geometry fitting or canonical space 
+            learning, our approach achieves rapid and high-quality results using only monocular video.
           </p>
         </div>
       </div>

@@ -209,3 +209,16 @@ body {
   object-fit: contain;   /* keep aspect ratio */
 }
 
+
+#results-carousel .carousel-item {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#results-carousel .carousel-item .item {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+

@@ -1,6 +1,6 @@
 window.HELP_IMPROVE_VIDEOJS = false;
 
-var INTERP_BASE = "./static/frames";
+var INTERP_BASE = "./static/frames_new";
 var NUM_INTERP_FRAMES = 240;
 
 var interp_images = [];

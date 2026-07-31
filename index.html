@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GSDHuman — Gaussian Surfels for Dynamic Human Reconstruction</title>
-<meta name="description" content="GSDHuman: Gaussian Surfels for Dynamic Human Reconstruction from Monocular Video. Reconstruct photorealistic, dynamic human avatars from a single video in minutes.">
+<meta name="description" content="GSDHuman: Gaussian Surfels for Dynamic Human Reconstruction from Monocular Video. Photorealistic, dynamic human avatars from a single video in minutes.">
 <meta name="keywords" content="Gaussian Splatting, 2D Gaussian Surfels, Human Avatar, SMPL, Monocular Reconstruction">
 
 <!-- Google Analytics -->
@@ -19,234 +19,198 @@
 <link rel="icon" href="./static/images/favicon_new.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F7F8FB; --paper-2:#FFFFFF; --ink:#16161F; --mute:#63657A; --rule:#E4E5EF;
-    --indigo:#5A4FE4; --indigo-deep:#3A32B0; --coral:#F0714D; --coral-deep:#C9502F;
-    /* page accent = indigo (reconstruction / geometry) */
-    --accent:var(--indigo); --accent-deep:var(--indigo-deep); --accent-wash:#EEEDFB; --accent-2:var(--coral);
-    --shadow:0 1px 2px rgba(22,22,31,.04),0 10px 34px rgba(22,22,31,.07);
+    --bg:#FCFCFD; --surface:#FFFFFF; --ink:#14151A; --mute:#5C5F6B; --faint:#8A8D98;
+    --line:#E6E7EB; --line-2:#EFEFF2; --accent:#2743E6; --accent-ink:#1B31C4;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{margin:0;background:var(--paper);color:var(--ink);
-    font-family:"Inter",system-ui,sans-serif;font-size:17px;line-height:1.62;
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;font-size:16.5px;line-height:1.6;
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-  a{color:var(--accent-deep);text-decoration:none}
-  a:hover{text-decoration:underline;text-underline-offset:3px}
-  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
-  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
-    letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
-  section{padding:70px 0}
-  section+section{border-top:1px solid var(--rule)}
-  h2.sec{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,3.4vw,33px);
-    letter-spacing:-.01em;margin:10px 0 20px;line-height:1.12}
-  p{margin:0 0 18px} p:last-child{margin-bottom:0}
-  .lead{font-size:18px;max-width:68ch}
+  a{color:var(--accent-ink);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:2px}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  .measure{max-width:70ch}
+  h2.h{font-family:"Archivo",sans-serif;font-weight:600;font-size:clamp(21px,2.7vw,28px);
+    letter-spacing:-.012em;line-height:1.15;margin:0 0 16px}
+  .kicker{font-size:13px;font-weight:600;color:var(--accent);margin:0 0 9px;letter-spacing:.01em}
+  p{margin:0 0 16px} p:last-child{margin-bottom:0}
+  section{padding:56px 0;border-top:1px solid var(--line-2)}
 
-  /* ---------- Hero ---------- */
-  header.hero{position:relative;overflow:hidden;padding:82px 0 54px;border-bottom:1px solid var(--rule)}
-  .surfels{position:absolute;inset:0;z-index:0;pointer-events:none}
-  .hero .wrap{position:relative;z-index:1;text-align:center}
-  .venue{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:12px;
-    letter-spacing:.13em;color:var(--mute);border:1px solid var(--rule);background:var(--paper-2);
-    border-radius:999px;padding:6px 15px;margin-bottom:24px}
-  .venue b{color:var(--accent);font-weight:500}
-  h1.title{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(34px,5.4vw,56px);
-    line-height:1.02;letter-spacing:-.015em;margin:0 auto 10px}
-  h1.title .lead-word{color:var(--accent)}
-  .subtitle{font-family:"Fraunces",serif;font-weight:400;font-style:italic;
-    font-size:clamp(17px,2.4vw,21px);color:var(--mute);max-width:46ch;margin:0 auto 26px;line-height:1.35}
-  .authors{font-size:16px;margin:0 0 4px}
-  .authors a{color:var(--ink);font-weight:600}
-  .affil{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--mute);letter-spacing:.02em}
-  .links{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin-top:30px}
-  .btn{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;
-    padding:10px 18px;border-radius:11px;background:var(--ink);color:#fff;border:1px solid var(--ink);
-    transition:transform .15s ease,box-shadow .15s ease}
-  .btn:hover{text-decoration:none;transform:translateY(-2px);box-shadow:var(--shadow)}
-  .btn.ghost{background:var(--paper-2);color:var(--ink);border-color:var(--rule)}
-  .btn.ghost:hover{border-color:var(--accent);color:var(--accent-deep)}
-  .btn.accent{background:var(--accent);border-color:var(--accent)}
-  .btn svg{width:16px;height:16px;flex:none}
-  .companion{font-size:14px;color:var(--mute);margin-top:20px}
+  /* ---------- Masthead ---------- */
+  header{padding:56px 0 0;text-align:center}
+  .meta-top{display:flex;justify-content:center;flex-wrap:wrap;align-items:baseline;gap:8px 16px;
+    font-size:13px;color:var(--faint);margin-bottom:22px}
+  .meta-top .mod{color:var(--ink);font-weight:600}
+  .meta-top .mod .idx{color:var(--accent)}
+  h1.wordmark{font-family:"Archivo",sans-serif;font-weight:700;
+    font-size:clamp(38px,6vw,62px);letter-spacing:-.028em;line-height:1;margin:0 0 16px}
+  .tagline{font-size:clamp(17px,2.1vw,20px);color:var(--ink);max-width:40ch;margin:0 auto 22px;line-height:1.4}
+  .byline{font-size:15px;color:var(--mute);margin:0 0 4px}
+  .byline a{color:var(--ink);font-weight:500}
+  .affil{font-size:13.5px;color:var(--faint)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;justify-content:center}
+  .btn{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;
+    padding:9px 15px;border-radius:8px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);transition:border-color .15s ease,background .15s ease,color .15s ease}
+  .btn:hover{text-decoration:none;border-color:var(--ink)}
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn.primary:hover{background:#000}
+  .btn svg{width:15px;height:15px;flex:none}
+  header .rule{height:1px;background:var(--line);margin:44px 0 0}
 
-  /* ---------- Video framing ---------- */
+  /* ---------- Media ---------- */
   figure{margin:0}
-  .vframe{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:#0e0e14;
-    box-shadow:var(--shadow);line-height:0}
-  .vframe video{width:100%;height:auto;display:block}
-  .cap{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--mute);
-    line-height:1.55;margin-top:12px;text-align:center}
+  .media{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#0f0f12;line-height:0}
+  .media video{width:100%;height:auto;display:block}
+  .cap{font-size:13px;color:var(--mute);line-height:1.5;margin-top:11px;max-width:74ch}
   .cap b{color:var(--ink);font-weight:500}
-  .teaser-wrap{padding:58px 0}
-  .teaser-wrap .wrap{max-width:900px}
+  .teaser{padding:44px 0 0;border-top:0}
 
-  /* ---------- Gallery ---------- */
-  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:6px}
-  .gallery .vframe{border-radius:13px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
+  .gallery .media{border-radius:8px}
   .gallery video{aspect-ratio:1/1;object-fit:cover;height:100%}
 
-  /* ---------- Method cards ---------- */
-  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
-  .card{background:var(--paper-2);border:1px solid var(--rule);border-radius:14px;padding:22px 22px 20px}
-  .card h4{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.05em;
-    text-transform:uppercase;color:var(--accent);margin:0 0 9px;font-weight:500}
-  .card p{font-size:15px;line-height:1.55;color:#2c2c39;margin:0}
-  .card .num{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--mute);float:right}
+  /* ---------- Cards ---------- */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  .card{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:20px}
+  .card .n{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .card h4{font-family:"Archivo",sans-serif;font-weight:600;font-size:15.5px;margin:4px 0 8px}
+  .card p{font-size:14.5px;line-height:1.55;color:#33353f;margin:0}
 
   /* ---------- Contributions ---------- */
-  .contrib{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:13px}
-  .contrib li{display:grid;grid-template-columns:auto 1fr;gap:15px;align-items:start;
-    padding:16px 18px;background:var(--paper-2);border:1px solid var(--rule);border-radius:12px}
-  .contrib .k{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--accent);padding-top:3px}
+  .contrib{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+  .contrib li{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:16px 2px;
+    border-bottom:1px solid var(--line)}
+  .contrib .k{color:var(--accent);font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
   .contrib .v{font-size:15.5px;line-height:1.5}
   .contrib .v b{font-weight:600}
 
   /* ---------- Related ---------- */
-  .related{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-  .chip{display:inline-flex;align-items:center;gap:8px;font-size:14px;padding:9px 15px;
-    border:1px solid var(--rule);border-radius:999px;background:var(--paper-2);color:var(--ink);
-    transition:border-color .15s ease,color .15s ease}
-  .chip:hover{text-decoration:none;border-color:var(--accent);color:var(--accent-deep)}
-  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
-  .related-note{font-size:15px;color:var(--mute);max-width:60ch;margin:0 0 18px}
+  .related{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:13.5px;padding:6px 12px;border:1px solid var(--line);border-radius:6px;
+    background:var(--surface);color:var(--ink);transition:border-color .15s ease}
+  .chip:hover{text-decoration:none;border-color:var(--ink)}
 
   /* ---------- BibTeX ---------- */
-  .bibtex pre{font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.65;
-    background:var(--ink);color:#E9E9F2;border-radius:14px;padding:22px 24px;overflow-x:auto;margin:16px 0 0}
-  .bibtex pre .key{color:#B7B1F5} .bibtex pre .val{color:#F2B49B}
+  .bibtex pre{font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.6;
+    background:#F5F5F7;color:#33353f;border:1px solid var(--line);border-radius:8px;
+    padding:18px 20px;overflow-x:auto;margin:0}
 
   /* ---------- Acknowledgments ---------- */
-  .ack .wrap{max-width:820px}
-  .logos{display:flex;flex-wrap:wrap;align-items:center;gap:28px;margin:18px 0 26px}
-  .logos img{height:52px;width:auto;opacity:.9}
-  .ack p{font-size:15px;color:#33333f;margin:0 0 14px}
+  .logos{display:flex;flex-wrap:wrap;align-items:center;gap:26px;margin:0 0 22px}
+  .logos img{height:44px;width:auto}
+  .ack p{font-size:14.5px;color:#3a3c45;margin:0 0 12px;max-width:74ch}
 
   /* ---------- Footer ---------- */
-  footer{padding:44px 0 60px;border-top:1px solid var(--rule);text-align:center}
-  footer .ic{display:inline-flex;gap:18px;margin-bottom:16px}
-  footer .ic a{color:var(--mute)} footer .ic a:hover{color:var(--accent-deep)}
-  footer .ic svg{width:20px;height:20px}
-  footer p{font-size:13px;color:var(--mute);max-width:52ch;margin:0 auto}
-
-  .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
-  .reveal.in{opacity:1;transform:none}
+  footer{padding:34px 0 56px;border-top:1px solid var(--line)}
+  footer .row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  footer .links{display:flex;gap:16px}
+  footer a{color:var(--mute);font-size:13.5px}
+  footer .note{font-size:12.5px;color:var(--faint);max-width:46ch;margin:14px 0 0}
 
   @media (max-width:720px){
-    body{font-size:16px} section{padding:50px 0} header.hero{padding:70px 0 48px}
+    section{padding:44px 0} header{padding:40px 0 0}
     .cards{grid-template-columns:1fr}
+    .meta-top{flex-direction:column;gap:6px}
   }
-  @media (prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto} .reveal{opacity:1;transform:none;transition:none} .btn{transition:none}
-  }
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
 </style>
 </head>
 <body>
 
-<!-- ===================== HERO ===================== -->
-<header class="hero">
-  <svg class="surfels" viewBox="0 0 960 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <defs>
-      <radialGradient id="gi" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#5A4FE4" stop-opacity=".12"/><stop offset="100%" stop-color="#5A4FE4" stop-opacity="0"/></radialGradient>
-      <radialGradient id="gv" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#8E7BF0" stop-opacity=".10"/><stop offset="100%" stop-color="#8E7BF0" stop-opacity="0"/></radialGradient>
-      <radialGradient id="gc" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F0714D" stop-opacity=".07"/><stop offset="100%" stop-color="#F0714D" stop-opacity="0"/></radialGradient>
-    </defs>
-    <ellipse cx="110" cy="80"  rx="150" ry="64" fill="url(#gi)" transform="rotate(-22 110 80)"/>
-    <ellipse cx="860" cy="110" rx="140" ry="58" fill="url(#gv)" transform="rotate(18 860 110)"/>
-    <ellipse cx="890" cy="370" rx="150" ry="60" fill="url(#gi)" transform="rotate(28 890 370)"/>
-    <ellipse cx="60"  cy="390" rx="150" ry="58" fill="url(#gv)" transform="rotate(-28 60 390)"/>
-  </svg>
+<!-- ===================== MASTHEAD ===================== -->
+<header>
   <div class="wrap">
-    <span class="venue">M.S. Thesis · Texas A&amp;M University · <b>Module 1 — Reconstruct</b></span>
-    <h1 class="title"><span class="lead-word">GSDHuman</span></h1>
-    <p class="subtitle">Gaussian Surfels for dynamic human reconstruction — a photorealistic avatar from a single monocular video, in minutes.</p>
-    <p class="authors"><a href="https://yicheng.tw/">Yi-Cheng Hsiao</a></p>
+    <div class="meta-top">
+      <span class="mod"><span class="idx">01</span> · Reconstruct</span>
+      <span>M.S. Thesis · Texas A&amp;M University · 2025</span>
+    </div>
+    <h1 class="wordmark">GSDHuman</h1>
+    <p class="tagline">Gaussian surfels for dynamic human reconstruction — a photorealistic avatar from a single monocular video, in minutes.</p>
+    <p class="byline"><a href="https://yicheng.tw/">Yi-Cheng Hsiao</a></p>
     <p class="affil">Department of Visualization, Texas A&amp;M University</p>
-    <nav class="links">
-      <a class="btn accent" href="./static/YI-CHENG-PRIMARY-2025.pdf">
+    <div class="actions">
+      <a class="btn primary" href="./static/YI-CHENG-PRIMARY-2025.pdf">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
         Paper
       </a>
-      <a class="btn ghost" href="https://github.com/nelson-hsiao-0101/GSDHuman.github.io">
+      <a class="btn" href="https://github.com/nelson-hsiao-0101/GSDHuman.github.io">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.8 4.8 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A4.8 4.8 0 0 0 5 4.8 5.2 5.2 0 0 0 3.7 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg>
         Code
       </a>
-      <a class="btn ghost" href="https://nelson-hsiao-0101.github.io/3DFilmPCA/">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-        3DFilmPCA →
-      </a>
-    </nav>
-    <p class="companion">Module 1 of a two-part pipeline. Companion editing system: <a href="https://nelson-hsiao-0101.github.io/3DFilmPCA/">3DFilmPCA</a>.</p>
+      <a class="btn" href="https://nelson-hsiao-0101.github.io/3DFilmPCA/">3DFilmPCA (editing) →</a>
+    </div>
+    <div class="rule"></div>
   </div>
 </header>
 
 <!-- ===================== TEASER ===================== -->
-<section class="teaser-wrap">
+<section class="teaser">
   <div class="wrap">
-    <figure class="vframe">
-      <video autoplay muted loop playsinline>
-        <source src="./static/videos/all_models_white_new.mp4" type="video/mp4">
-      </video>
+    <figure class="media">
+      <video autoplay muted loop playsinline><source src="./static/videos/all_models_white_new.mp4" type="video/mp4"></video>
     </figure>
     <p class="cap"><b>GSDHuman</b> reconstructs photorealistic, dynamic human avatars from a single monocular video — in minutes.</p>
   </div>
 </section>
 
 <!-- ===================== ABSTRACT ===================== -->
-<section class="reveal">
-  <div class="wrap" style="max-width:780px">
-    <span class="eyebrow">Abstract</span>
-    <h2 class="sec">Fast surface reconstruction from one camera</h2>
-    <p>Reconstructing animatable human avatars usually demands multi-camera rigs, studios, or motion-capture suits. GSDHuman reconstructs dynamic avatars from an <b>ordinary monocular video</b>.</p>
-    <p>3D Gaussian Splatting renders efficiently but struggles to recover precise surface geometry on articulated bodies. GSDHuman instead uses <b>2D Gaussian surfels</b> — oriented planar disks that stay view-consistent — anchored to a <b>SMPL</b> body prior and deformed with Linear Blend Skinning. Geometry-aware pruning and a Wasserstein-distance densification keep the surfel field clean, and a dedicated opacity loss encourages faithful, extractable geometry.</p>
-    <p>The result is a fast, high-fidelity path from footage to a textured mesh, validated on People-Snapshot and in-the-wild video. GSDHuman is Module 1; the companion system <a href="https://nelson-hsiao-0101.github.io/3DFilmPCA/">3DFilmPCA</a> adds real-time pose and shape editing.</p>
+<section>
+  <div class="wrap measure">
+    <p class="kicker">Abstract</p>
+    <h2 class="h">Fast surface reconstruction from one camera</h2>
+    <p>Reconstructing animatable human avatars usually demands multi-camera rigs, studios, or motion-capture suits. GSDHuman reconstructs dynamic avatars from an ordinary monocular video.</p>
+    <p>3D Gaussian Splatting renders efficiently but struggles to recover precise surface geometry on articulated bodies. GSDHuman instead uses 2D Gaussian surfels — oriented planar disks that stay view-consistent — anchored to a SMPL body prior and deformed with Linear Blend Skinning. Geometry-aware pruning and a Wasserstein-distance densification keep the surfel field clean, and a dedicated opacity loss encourages faithful, extractable geometry.</p>
+    <p>The result is a fast, high-fidelity path from footage to a textured mesh, validated on People-Snapshot and in-the-wild video. GSDHuman is Module&nbsp;1; the companion system <a href="https://nelson-hsiao-0101.github.io/3DFilmPCA/">3DFilmPCA</a> adds real-time pose and shape editing.</p>
   </div>
 </section>
 
-<!-- ===================== RESULTS GALLERY ===================== -->
-<section class="reveal">
+<!-- ===================== RESULTS ===================== -->
+<section>
   <div class="wrap">
-    <span class="eyebrow">Results</span>
-    <h2 class="sec">Reconstructed avatars</h2>
+    <p class="kicker">Results</p>
+    <h2 class="h">Reconstructed avatars</h2>
     <div class="gallery">
-      <figure class="vframe"><video autoplay controls muted loop playsinline><source src="./static/videos/415_man_smaller.mp4" type="video/mp4"></video></figure>
-      <figure class="vframe"><video autoplay controls muted loop playsinline><source src="./static/videos/woman_cc_smaller.mp4" type="video/mp4"></video></figure>
-      <figure class="vframe"><video autoplay controls muted loop playsinline><source src="./static/videos/ani_fe_smaller.mp4" type="video/mp4"></video></figure>
-      <figure class="vframe"><video autoplay controls muted loop playsinline><source src="./static/videos/male-2-outdoor_smaller.mp4" type="video/mp4"></video></figure>
-      <figure class="vframe"><video autoplay controls muted loop playsinline><source src="./static/videos/woman_smaller.mp4" type="video/mp4"></video></figure>
-      <figure class="vframe"><video autoplay controls muted loop playsinline><source src="./static/videos/render_man_smaller.mp4" type="video/mp4"></video></figure>
+      <figure class="media"><video autoplay controls muted loop playsinline><source src="./static/videos/415_man_smaller.mp4" type="video/mp4"></video></figure>
+      <figure class="media"><video autoplay controls muted loop playsinline><source src="./static/videos/woman_cc_smaller.mp4" type="video/mp4"></video></figure>
+      <figure class="media"><video autoplay controls muted loop playsinline><source src="./static/videos/ani_fe_smaller.mp4" type="video/mp4"></video></figure>
+      <figure class="media"><video autoplay controls muted loop playsinline><source src="./static/videos/male-2-outdoor_smaller.mp4" type="video/mp4"></video></figure>
+      <figure class="media"><video autoplay controls muted loop playsinline><source src="./static/videos/woman_smaller.mp4" type="video/mp4"></video></figure>
+      <figure class="media"><video autoplay controls muted loop playsinline><source src="./static/videos/render_man_smaller.mp4" type="video/mp4"></video></figure>
     </div>
   </div>
 </section>
 
 <!-- ===================== METHOD ===================== -->
-<section class="reveal">
+<section>
   <div class="wrap">
-    <span class="eyebrow">Method</span>
-    <h2 class="sec">Surfels on a body prior, kept clean</h2>
-    <p class="lead">GSDHuman initializes 2D Gaussian surfels on the SMPL template in canonical space, deforms them into the posed space with Linear Blend Skinning, and regularizes the distribution so the surface stays clean and extractable.</p>
+    <p class="kicker">Method</p>
+    <h2 class="h">Surfels on a body prior, kept clean</h2>
+    <p class="measure">GSDHuman initializes 2D Gaussian surfels on the SMPL template in canonical space, deforms them into the posed space with Linear Blend Skinning, and regularizes the distribution so the surface stays clean and extractable.</p>
 
-    <figure class="vframe" style="margin-top:26px">
+    <figure class="media" style="margin-top:24px">
       <video autoplay muted loop playsinline><source src="./static/videos/top_new.mp4" type="video/mp4"></video>
     </figure>
     <p class="cap"><b>Mesh extraction.</b> RGB, surface normals, and depth are fused (TSDF) and meshed with marching cubes into a clean, geometry-consistent model.</p>
 
-    <div class="cards" style="margin-top:30px">
-      <div class="card"><span class="num">01</span><h4>Geometry-aware pruning</h4><p>Outlier pruning removes surfels far from the body; normal-consistency pruning drops splats whose orientation disagrees with their neighbors — so what remains conforms to the surface.</p></div>
-      <div class="card"><span class="num">02</span><h4>Wasserstein densification</h4><p>A surfel densifies only when its Wasserstein distance to its nearest neighbor exceeds a threshold, avoiding the redundant clusters that gradient-only strategies pile into dense regions.</p></div>
-      <div class="card"><span class="num">03</span><h4>Opacity regularization</h4><p>A dedicated loss pushes surfels toward fully opaque or transparent. An empirically best weight of 0.005 yields clean, connected meshes; larger weights collapse training.</p></div>
-      <div class="card"><span class="num">04</span><h4>Mesh extraction</h4><p>Rendered RGB, depth, and normals are fused in a TSDF volume (Open3D VoxelBlockGrid) and meshed with marching cubes, keeping the largest connected component.</p></div>
+    <div class="cards" style="margin-top:28px">
+      <div class="card"><div class="n">01</div><h4>Geometry-aware pruning</h4><p>Outlier pruning removes surfels far from the body; normal-consistency pruning drops splats whose orientation disagrees with their neighbors — so what remains conforms to the surface.</p></div>
+      <div class="card"><div class="n">02</div><h4>Wasserstein densification</h4><p>A surfel densifies only when its Wasserstein distance to its nearest neighbor exceeds a threshold, avoiding the redundant clusters gradient-only strategies pile into dense regions.</p></div>
+      <div class="card"><div class="n">03</div><h4>Opacity regularization</h4><p>A dedicated loss pushes surfels toward fully opaque or transparent. An empirically best weight of 0.005 yields clean, connected meshes; larger weights collapse training.</p></div>
+      <div class="card"><div class="n">04</div><h4>Mesh extraction</h4><p>Rendered RGB, depth, and normals are fused in a TSDF volume (Open3D VoxelBlockGrid) and meshed with marching cubes, keeping the largest connected component.</p></div>
     </div>
   </div>
 </section>
 
 <!-- ===================== CONTRIBUTIONS ===================== -->
-<section class="reveal">
-  <div class="wrap">
-    <span class="eyebrow">Contributions</span>
-    <h2 class="sec">What's new</h2>
+<section>
+  <div class="wrap measure">
+    <p class="kicker">Contributions</p>
+    <h2 class="h">What's new</h2>
     <ul class="contrib">
       <li><span class="k">C1</span><span class="v"><b>Surfels for dynamic humans.</b> The first method to reconstruct dynamic 3D human avatars from monocular video using 2D Gaussian surfels — in minutes, not hours.</span></li>
       <li><span class="k">C2</span><span class="v"><b>An opacity loss for surfaces.</b> A regularizer addressing the overlooked role of 2D Gaussian opacity, encouraging faithful, extractable geometry.</span></li>
@@ -256,73 +220,67 @@
 </section>
 
 <!-- ===================== RELATED ===================== -->
-<section class="reveal">
+<section>
   <div class="wrap">
-    <span class="eyebrow">Related links</span>
-    <h2 class="sec">Builds on</h2>
-    <p class="related-note">GSDHuman draws on point-based neural rendering and articulated human modeling.</p>
+    <p class="kicker">Related</p>
+    <h2 class="h">Builds on</h2>
     <div class="related">
-      <a class="chip" href="https://arxiv.org/abs/2308.04079"><span class="dot"></span>3D Gaussian Splatting</a>
-      <a class="chip" href="https://arxiv.org/abs/2403.17888"><span class="dot"></span>2D Gaussian Splatting</a>
-      <a class="chip" href="https://arxiv.org/abs/2312.02973"><span class="dot"></span>GauHuman</a>
-      <a class="chip" href="https://arxiv.org/abs/2404.07991"><span class="dot"></span>GomAvatar</a>
-      <a class="chip" href="https://arxiv.org/abs/2311.17910"><span class="dot"></span>HUGS</a>
-      <a class="chip" href="https://smpl.is.tue.mpg.de/"><span class="dot"></span>SMPL</a>
+      <a class="chip" href="https://arxiv.org/abs/2308.04079">3D Gaussian Splatting</a>
+      <a class="chip" href="https://arxiv.org/abs/2403.17888">2D Gaussian Splatting</a>
+      <a class="chip" href="https://arxiv.org/abs/2312.02973">GauHuman</a>
+      <a class="chip" href="https://arxiv.org/abs/2404.07991">GomAvatar</a>
+      <a class="chip" href="https://arxiv.org/abs/2311.17910">HUGS</a>
+      <a class="chip" href="https://smpl.is.tue.mpg.de/">SMPL</a>
     </div>
   </div>
 </section>
 
 <!-- ===================== BIBTEX ===================== -->
-<section class="bibtex reveal">
-  <div class="wrap">
-    <span class="eyebrow">Citation</span>
-    <h2 class="sec">BibTeX</h2>
-    <pre><span class="key">@mastersthesis</span>{hsiao2025avatars,
-  <span class="key">title</span>   = {<span class="val">Photorealistic Human Avatar Generation and Real-Time
-             Pose Editing with Gaussian Splatting</span>},
-  <span class="key">author</span>  = {<span class="val">Hsiao, Yi-Cheng</span>},
-  <span class="key">school</span>  = {<span class="val">Texas A&amp;M University</span>},
-  <span class="key">year</span>    = {<span class="val">2025</span>},
-  <span class="key">month</span>   = aug,
-  <span class="key">type</span>    = {<span class="val">Master's thesis</span>},
-  <span class="key">url</span>     = {<span class="val">https://nelson-hsiao-0101.github.io/3DFilmPCA/static/YI-CHENG-PRIMARY-2025.pdf</span>}
+<section class="bibtex">
+  <div class="wrap measure">
+    <p class="kicker">Citation</p>
+    <h2 class="h">BibTeX</h2>
+    <pre>@mastersthesis{hsiao2025avatars,
+  title   = {Photorealistic Human Avatar Generation and Real-Time
+             Pose Editing with Gaussian Splatting},
+  author  = {Hsiao, Yi-Cheng},
+  school  = {Texas A\&M University},
+  year    = {2025},
+  month   = aug,
+  type    = {Master's thesis},
+  url     = {https://nelson-hsiao-0101.github.io/3DFilmPCA/static/YI-CHENG-PRIMARY-2025.pdf}
 }</pre>
   </div>
 </section>
 
 <!-- ===================== ACKNOWLEDGMENTS ===================== -->
-<section class="ack reveal">
+<section class="ack">
   <div class="wrap">
-    <span class="eyebrow">Acknowledgments &amp; funding</span>
-    <h2 class="sec">Thanks</h2>
+    <p class="kicker">Acknowledgments &amp; funding</p>
     <div class="logos">
       <img src="./static/images/TAMU_logo.png" alt="Texas A&M University">
       <img src="./static/images/VIZ_logo.png" alt="Department of Visualization">
       <img src="./static/images/NSF_logo.png" alt="National Science Foundation">
     </div>
     <p>Graduate study was supported by a fellowship from Texas A&amp;M University and research funding from the National Science Foundation.</p>
-    <p>I sincerely thank Xin Li for his guidance and insight throughout this thesis, and my committee members John Keyser and Ann McNamara for their valuable feedback.</p>
-    <p>Special thanks to Zhengming Yu (Texas A&amp;M University) for mentorship and technical discussions that shaped GSDHuman — particularly the Gaussian Splatting framework and related system design.</p>
+    <p>I sincerely thank Xin Li for his guidance and insight throughout this thesis, and my committee members John Keyser and Ann McNamara for their valuable feedback. Special thanks to Zhengming Yu (Texas A&amp;M University) for mentorship and technical discussions that shaped GSDHuman — particularly the Gaussian Splatting framework and related system design.</p>
   </div>
 </section>
 
 <!-- ===================== FOOTER ===================== -->
 <footer>
-  <div class="ic">
-    <a href="./static/YI-CHENG-PRIMARY-2025.pdf" aria-label="Paper PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></a>
-    <a href="https://github.com/nelson-hsiao-0101/GSDHuman.github.io" aria-label="Code on GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.8 4.8 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A4.8 4.8 0 0 0 5 4.8 5.2 5.2 0 0 0 3.7 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a>
+  <div class="wrap">
+    <div class="row">
+      <span style="font-size:13.5px;color:var(--mute)">GSDHuman · Yi-Cheng Hsiao · 2025</span>
+      <span class="links">
+        <a href="./static/YI-CHENG-PRIMARY-2025.pdf">Paper</a>
+        <a href="https://github.com/nelson-hsiao-0101/GSDHuman.github.io">Code</a>
+        <a href="https://nelson-hsiao-0101.github.io/3DFilmPCA/">3DFilmPCA</a>
+      </span>
+    </div>
+    <p class="note">Website template adapted from <a href="https://nerfies.github.io/">Nerfies</a>, kindly open-sourced by its authors.</p>
   </div>
-  <p>Website template adapted from <a href="https://nerfies.github.io/">Nerfies</a>, kindly open-sourced by its authors.</p>
 </footer>
 
-<script>
-  (function(){
-    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var els = document.querySelectorAll('.reveal');
-    if(reduce || !('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
-    var io = new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.1,rootMargin:'0px 0px -6% 0px'});
-    els.forEach(function(e){io.observe(e)});
-  })();
-</script>
 </body>
 </html>

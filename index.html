@@ -65,7 +65,10 @@
   /* ---------- Media ---------- */
   figure{margin:0}
   .media{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#0f0f12;line-height:0}
-  .media video{width:100%;height:auto;display:block}
+  .media video,.media img{width:100%;height:auto;display:block}
+  .media img{width:100%;height:auto;display:block}
+  .media.figure-lite{background:var(--surface)}
+  .media.figure-lite img{padding:16px}
   .cap{font-size:13px;color:var(--mute);line-height:1.5;margin-top:11px;max-width:74ch}
   .cap b{color:var(--ink);font-weight:500}
   .teaser{padding:44px 0 0;border-top:0}
@@ -73,6 +76,19 @@
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
   .gallery .media{border-radius:8px}
   .gallery video{aspect-ratio:1/1;object-fit:cover;height:100%}
+
+  /* ---------- Frame scrubber ---------- */
+  .scrubber{display:flex;align-items:center;gap:16px;margin-top:16px}
+  .scrubber input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:16px;background:transparent;cursor:pointer}
+  .scrubber input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--line)}
+  .scrubber input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--line);margin-top:-6px}
+  .scrubber input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:var(--line)}
+  .scrubber input[type=range]::-moz-range-thumb{width:15px;height:15px;border:2px solid #fff;border-radius:50%;background:var(--accent)}
+  .scrubber input[type=range]:focus{outline:none}
+  .scrubber input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(39,67,230,.25)}
+  .frame-idx{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--mute);
+    min-width:78px;text-align:right;font-variant-numeric:tabular-nums}
 
   /* ---------- Cards ---------- */
   .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
@@ -181,6 +197,22 @@
   </div>
 </section>
 
+<!-- ===================== INTERPOLATION ===================== -->
+<section>
+  <div class="wrap">
+    <p class="kicker">Interpolation</p>
+    <h2 class="h">Scrub through frames</h2>
+    <p class="measure">Drag the bar to step through the sequence and inspect the reconstruction frame by frame.</p>
+    <figure class="media" style="margin-top:20px">
+      <img id="interp-img" alt="Reconstruction frame" src="./static/frames_new/00000.jpg">
+    </figure>
+    <div class="scrubber">
+      <input type="range" id="interp-slider" min="0" max="239" value="0" step="1" aria-label="Frame">
+      <span class="frame-idx" id="interp-idx">00000 / 240</span>
+    </div>
+  </div>
+</section>
+
 <!-- ===================== METHOD ===================== -->
 <section>
   <div class="wrap">
@@ -188,10 +220,10 @@
     <h2 class="h">Surfels on a body prior, kept clean</h2>
     <p class="measure">GSDHuman initializes 2D Gaussian surfels on the SMPL template in canonical space, deforms them into the posed space with Linear Blend Skinning, and regularizes the distribution so the surface stays clean and extractable.</p>
 
-    <figure class="media" style="margin-top:24px">
-      <img src="./static/images/new_framework.png" alt="Top Image">
+    <figure class="media figure-lite" style="margin-top:24px">
+      <img src="./static/images/new_framework.png" alt="GSDHuman framework overview">
     </figure>
-    <p class="cap"><b>Mesh extraction.</b> RGB, surface normals, and depth are fused (TSDF) and meshed with marching cubes into a clean, geometry-consistent model.</p>
+    <p class="cap"><b>Framework overview.</b> 2D Gaussian surfels are initialized on the SMPL template, deformed by Linear Blend Skinning, pruned and densified, then fused (TSDF + marching cubes) into a clean mesh.</p>
 
     <div class="cards" style="margin-top:28px">
       <div class="card"><div class="n">01</div><h4>Geometry-aware pruning</h4><p>Outlier pruning removes surfels far from the body; normal-consistency pruning drops splats whose orientation disagrees with their neighbors — so what remains conforms to the surface.</p></div>
@@ -277,6 +309,33 @@
     <p class="note">Website template adapted from <a href="https://nerfies.github.io/">Nerfies</a>, kindly open-sourced by its authors.</p>
   </div>
 </footer>
+
+<script>
+  /* ---- Frame scrubber ----
+     Point this at whichever frame sequence you want readers to scrub.
+     Your repo currently has three 240-frame sets:
+       DIR './static/frames_new/'          PAD 5   ← default (your newer render)
+       DIR './static/frames/'              PAD 5   (your earlier render)
+       DIR './static/interpolation/stacked/'  PAD 6   (original Nerfies demo frames)
+     Change DIR + PAD together if you switch. */
+  (function(){
+    var DIR='./static/frames_new/', PAD=5, COUNT=240, EXT='.jpg';
+    var img=document.getElementById('interp-img'),
+        slider=document.getElementById('interp-slider'),
+        idx=document.getElementById('interp-idx');
+    if(!img||!slider) return;
+    function pad(n){n=String(n);while(n.length<PAD)n='0'+n;return n;}
+    function src(i){return DIR+pad(i)+EXT;}
+    slider.max=COUNT-1;
+    function show(i){img.src=src(i);idx.textContent=pad(i)+' / '+COUNT;}
+    slider.addEventListener('input',function(){show(+slider.value);});
+    show(0);
+    // preload the rest in the background for smooth scrubbing
+    window.addEventListener('load',function(){
+      for(var i=1;i<COUNT;i++){var im=new Image();im.src=src(i);}
+    });
+  })();
+</script>
 
 </body>
 </html>
